@@ -1,0 +1,17 @@
+{
+  "name": "My Study Habit Dashboard",
+  "short_name": "My Study Habits",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#17133a",
+  "theme_color": "#17133a",
+  "icons": [
+    {
+      "src": "./study-dashboard-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

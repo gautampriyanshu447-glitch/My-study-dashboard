@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17133a">
+<title>My Study Habit Dashboard</title>
+<style>
+:root{--bg:#100e28;--panel:#1d1941;--line:#494276;--text:#f7f4ff;--muted:#c1b9e8;--a:#9e8cff;--b:#53d6c5;--pink:#f39bd5}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(140deg,#171334,#25205a 55%,#15132e);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif;padding:16px;max-width:1000px;margin:auto}
+header,.panel{background:rgba(29,25,65,.92);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 10px 30px #07051c55}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:clamp(1.5rem,4vw,2.2rem);margin:0 0 5px}h2{font-size:1.15rem;margin:0 0 14px}p{color:var(--muted);margin:5px 0}.pill{background:#41377e;color:#fff;border-radius:999px;padding:8px 13px;font-size:.9rem}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:14px}.wide{grid-column:1/-1}
+.habit{display:flex;gap:11px;align-items:center;padding:10px 0;border-bottom:1px solid #39335f}.habit:last-child{border:0}
+input[type=checkbox]{accent-color:var(--b);width:21px;height:21px;flex-shrink:0}.habit label{flex:1}.habit small{color:var(--muted);display:block}
+.done label{text-decoration:line-through;color:#aaa4c9}
+.progress{height:12px;background:#38315f;border-radius:99px;overflow:hidden;margin:12px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--b),var(--a));transition:width .2s}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{padding:9px 2px;border:1px solid var(--line);border-radius:12px;background:#24204e;color:var(--text);cursor:pointer;font-weight:650}.day.active{background:var(--a);color:#181332}
+.rotation{margin-top:12px;line-height:1.7;color:var(--muted)}.rotation strong{color:var(--text)}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.schedule-item{display:grid;grid-template-columns:90px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid #39335f}.schedule-item:last-child{border:0}.time{color:var(--b);font-weight:650}
+button{background:#51458f;color:white;border:1px solid #8071c7;border-radius:12px;padding:10px 13px;font:inherit;cursor:pointer}button:active{transform:scale(.98)}.secondary{background:transparent}.buttons{display:flex;gap:8px;flex-wrap:wrap}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:8px}
+@media(max-width:650px){body{padding:10px}.layout{grid-template-columns:1fr}.wide{grid-column:auto}.panel,header{padding:15px}.schedule-item{grid-template-columns:82px 1fr}}
+</style>
+</head>
+<body>
+<header>
+<div><h1>🌙 My Study Dashboard</h1><p>Small steps every day add up.</p></div>
+<div class="pill" id="date">Daily habit tracker</div>
+</header>
+<div class="layout">
+<section class="panel">
+<div class="row"><h2>☑ Daily habits</h2><span class="pill" id="count">0 / 9</span></div>
+<div id="habits"></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="row"><small id="percent">0% completed</small><button class="secondary" id="reset">Reset today</button></div>
+</section>
+<section class="panel">
+<h2>🗓 Weekly rotation</h2>
+<div class="days" id="days"></div>
+<div class="rotation" id="rotation"></div>
+<p style="margin-top:12px">Sunday: flexible catch-up, revision, or rest.</p>
+</section>
+<section class="panel wide">
+<h2>⏰ Daily schedule</h2>
+<div id="schedule"></div>
+</section>
+<section class="panel">
+<h2>🎯 Study goals</h2>
+<p>☑ Complete NIOS Class 10 syllabus</p><p>☑ Improve English speaking</p><p>☑ Learn web development and graphics</p><p>☑ Practice questions consistently</p>
+</section>
+<section class="panel">
+<h2>✨ Helpful reminders</h2>
+<p>• Review mistakes from QP practice.</p><p>• Take breaks and stay hydrated.</p><p>• Keep family time protected, 6–11 PM.</p><p>• Adjust chapter load to your energy.</p>
+</section>
+</div>
+<footer>Your progress is saved on this device in this browser.</footer>
+<script>
+const habits=["Wake up and freshen up","Revision — 30–45 min","Skill learning — 30 min","English speaking — 10–15 min","Shower and lunch","Afternoon sleep — 2–3 hours","QP practice — 1 hour","Family time — 6–11 PM","Night study — after 11 PM"];
+const plan=[
+{day:"Mon",qp:"Science",lang:"English",skill:"Web development"},
+{day:"Tue",qp:"Science",lang:"English",skill:"Web development"},
+{day:"Wed",qp:"Social Science",lang:"English",skill:"Web development"},
+{day:"Thu",qp:"Social Science",lang:"Hindi",skill:"Graphics design"},
+{day:"Fri",qp:"Maths",lang:"Hindi",skill:"Graphics design"},
+{day:"Sat",qp:"Maths",lang:"Hindi",skill:"Graphics design"},
+{day:"Sun",qp:"Catch-up / rest",lang:"Flexible",skill:"Optional"}
+];
+const sched=[["10:00 AM","Wake up, freshen up + revision"],["10:45 AM","Skill learning"],["11:15 AM","English speaking practice"],["11:30 AM","Shower + lunch"],["12:30 PM","Afternoon sleep (2–3 hours)"],["3:00–4:00 PM","Wake up + QP practice (1 hour)"],["6:00–11:00 PM","Family time"],["After 11 PM","Night study: grammar first, then Maths / Science / Social Science"]];
+const today=new Date();const dayIndex=(today.getDay()+6)%7;
+document.getElementById("date").textContent=today.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+const storageKey="study-habit-checks-"+today.toISOString().slice(0,10);
+let checked=JSON.parse(localStorage.getItem(storageKey)||"[]");
+const habitsEl=document.getElementById("habits");
+habits.forEach((h,i)=>{const div=document.createElement("div");div.className="habit"+(checked.includes(i)?" done":"");div.innerHTML=`<input type="checkbox" id="h${i}" ${checked.includes(i)?"checked":""}><label for="h${i}">${h}</label>`;div.querySelector("input").addEventListener("change",e=>{checked=e.target.checked?[...checked,i]:checked.filter(x=>x!==i);localStorage.setItem(storageKey,JSON.stringify(checked));div.classList.toggle("done",e.target.checked);update()});habitsEl.appendChild(div)});
+function update(){let n=checked.length,p=Math.round(n/habits.length*100);document.getElementById("count").textContent=`${n} / ${habits.length}`;document.getElementById("bar").style.width=p+"%";document.getElementById("percent").textContent=p+"% completed"}
+update();
+document.getElementById("reset").onclick=()=>{if(confirm("Reset today's checklist?")){checked=[];localStorage.removeItem(storageKey);document.querySelectorAll("#habits input").forEach(x=>x.checked=false);document.querySelectorAll(".habit").forEach(x=>x.classList.remove("done"));update()}};
+const daysEl=document.getElementById("days");
+plan.forEach((d,i)=>{let b=document.createElement("button");b.className="day"+(i===dayIndex?" active":"");b.textContent=d.day;b.onclick=()=>{document.querySelectorAll(".day").forEach(x=>x.classList.remove("active"));b.classList.add("active");showRotation(i)};daysEl.appendChild(b)});
+function showRotation(i){let d=plan[i];document.getElementById("rotation").innerHTML=`<strong>${d.day}</strong><br>QP practice: <strong>${d.qp}</strong><br>Language: <strong>${d.lang}</strong><br>Skill: <strong>${d.skill}</strong>`}
+showRotation(dayIndex);
+document.getElementById("schedule").innerHTML=sched.map(x=>`<div class="schedule-item"><div class="time">${x[0]}</div><div>${x[1]}</div></div>`).join("");
+</script>
+</body></html>
